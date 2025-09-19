@@ -1,6 +1,7 @@
 **/node_modules
 dist
 .tshy
+.zshy
 .env
 .env.*
 *.env
