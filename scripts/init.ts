@@ -10,7 +10,7 @@
  *   - Rewrites package.json: name, repository, homepage, bugs
  *   - Replaces tokens in README_TEMPLATE.md -> README.md
  *   - Removes template-only files and self
- *   - Rebuilds bun.lockb and creates the first commit
+ *   - Rebuilds bun.lock and squashes the repo to a single root commit
  */
 import { rm, stat } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
@@ -116,12 +116,30 @@ async function cleanupTemplateOnly() {
   }
 }
 
+/**
+ * Install deps and rewrite git history to a single root commit reflecting
+ * the current working tree. This leaves old commits unreachable (reflog GC
+ * will clean them up later) and keeps the current branch name intact.
+ */
 async function installAndCommit() {
   await $`bun install`;
-  // Ensure lockfile in repo
+
+  // Stage all changes (adds, mods, deletions) so the index matches the tree.
   await $`git add -A`;
-  await $`git commit -m ${'chore: initialize from template'}`;
-  log('dependencies installed and initial commit created');
+
+  // Create a brand‑new root commit from the current index and move HEAD to it.
+  // 1) Write the index as a tree object
+  const tree = (await $`git write-tree`.text()).trim();
+  // 2) Create a commit with no parents from that tree
+  const message = 'chore: initialize from template';
+  const commit = (await $`git commit-tree ${tree} -m ${message}`.text()).trim();
+  // 3) Replace the current branch tip with the new root commit
+  await $`git reset --hard ${commit}`;
+
+  log('dependencies installed and history squashed to a single commit');
+  log(
+    'Note: history was rewritten. If a remote is set, push with: git push --force-with-lease'
+  );
 }
 
 (async () => {
