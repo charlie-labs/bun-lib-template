@@ -12,19 +12,11 @@
  *   - Removes template-only files and self
  *   - Rebuilds bun.lockb and creates the first commit
  */
-import { readFile, writeFile, rm, rename, stat } from 'node:fs/promises';
-import { exec as _exec } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { rm, stat } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
-const exec = (cmd: string) =>
-  new Promise<string>((res, rej) =>
-    _exec(cmd, (err, stdout, stderr) =>
-      err ? rej(new Error(stderr || stdout)) : res(stdout)
-    )
-  );
+const $ = Bun.$;
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Current script path is available via `import.meta.url` if needed.
 
 /** Parse `--key=value` flags into a map. */
 function parseFlags(argv: string[]): Record<string, string> {
@@ -73,7 +65,7 @@ async function pathExists(p: string) {
 
 async function rewritePackageJson() {
   const p = resolve(process.cwd(), 'package.json');
-  const pkg = JSON.parse(await readFile(p, 'utf8'));
+  const pkg = JSON.parse(await Bun.file(p).text());
 
   pkg.name = pkgName;
   pkg.repository = { type: 'git', url: `${repoUrl}.git` };
@@ -85,7 +77,7 @@ async function rewritePackageJson() {
     pkg.scripts.init = "echo 'Already initialized.'";
   }
 
-  await writeFile(p, JSON.stringify(pkg, null, 2) + '\n', 'utf8');
+  await Bun.write(p, JSON.stringify(pkg, null, 2) + '\n');
   log(`package.json updated (name=${pkgName})`);
 }
 
@@ -94,14 +86,14 @@ async function materializeReadme() {
   const dst = resolve(process.cwd(), 'README.md');
   if (!(await pathExists(src))) return;
 
-  let txt = await readFile(src, 'utf8');
+  let txt = await Bun.file(src).text();
   txt = txt
     .replaceAll(/__PROJECT_NAME__/g, projectName)
     .replaceAll(/__PKG_NAME__/g, pkgName)
     .replaceAll(/__REPO_SLUG__/g, repoSlug)
     .replaceAll(/__VISIBILITY__/g, visibility);
 
-  await writeFile(dst, txt, 'utf8');
+  await Bun.write(dst, txt);
   await rm(src);
   log('README.md created');
 }
@@ -125,9 +117,10 @@ async function cleanupTemplateOnly() {
 }
 
 async function installAndCommit() {
-  await exec('bun install');
+  await $`bun install`;
   // Ensure lockfile in repo
-  await exec('git add -A && git commit -m "chore: initialize from template"');
+  await $`git add -A`;
+  await $`git commit -m ${'chore: initialize from template'}`;
   log('dependencies installed and initial commit created');
 }
 
@@ -137,7 +130,9 @@ async function installAndCommit() {
   await cleanupTemplateOnly();
   await installAndCommit();
   log('Done.');
-})().catch((err) => {
-  console.error(err);
+})().catch((err: unknown) => {
+  const message =
+    err instanceof Error ? (err.stack ?? err.message) : String(err);
+  process.stderr.write(`${message}\n`);
   process.exit(1);
 });
