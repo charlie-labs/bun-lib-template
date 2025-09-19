@@ -1,9 +1,10 @@
 # bun-lib-template
 
-Fast, repeatable Bun + TypeScript project bootstrap for Charlie Labs.  
-ESM-first, strict TS, no boilerplate fatigue.
+Opinionated Bun + TypeScript library starter for Charlie Labs.
 
-> Use **GitHub’s Template Repository** flow to clone this into new projects, then run a tiny initializer to personalize the repo (name, URLs, README, etc.).
+> Use **GitHub’s Template Repository** flow to clone this repo, then run the initializer script to personalize package metadata, README content, and git history.
+
+> **Default branch:** The template (and repos created from it) start on `master`. Rename it to `main` if you prefer that convention.
 
 ---
 
@@ -16,22 +17,24 @@ Using GitHub’s template feature:
 gh repo create charlie-labs/my-new-service \
   --private \
   --template charlie-labs/bun-lib-template \
-  --description "My new Bun service"
+  --description "My new Bun library"
 
 # 2) Clone & initialize
 gh repo clone charlie-labs/my-new-service
 cd my-new-service
-bun run init --name=my-new-service --org=charlie-labs --visibility=private
+bun scripts/init.ts --name=my-new-service --org=charlie-labs --visibility=private
 
 # 3) Verify
 bun install
-bun run typecheck && bun run lint && bun test
+bun run typecheck
+bun run lint
+bun test
 ```
 
 One-liner convenience (optional):
 
 ```bash
-gh alias set -s newbun 'gh repo create charlie-labs/$1 --private --template charlie-labs/bun-lib-template && gh repo clone charlie-labs/$1 && cd $1 && bun run init --name=$1 --org=charlie-labs'
+gh alias set -s newbun 'gh repo create charlie-labs/$1 --private --template charlie-labs/bun-lib-template && gh repo clone charlie-labs/$1 && cd $1 && bun scripts/init.ts --name=$1 --org=charlie-labs --visibility=private'
 # usage: gh newbun my-new-service
 ```
 
@@ -40,23 +43,24 @@ Local-only bootstrap (no GitHub yet):
 ```bash
 bunx giget gh:charlie-labs/bun-lib-template my-new-service
 cd my-new-service
-git init -b main
-bun run init --name=my-new-service --org=charlie-labs
+git init -b master
+bun scripts/init.ts --name=my-new-service --org=charlie-labs --visibility=private
 ```
+
+> The initializer rewrites `package.json`, materializes a project-specific `README.md`, removes template-only files (including itself), runs `bun install`, and makes the first commit.
+
+> Prefer `main` as your default branch? Rename it after the initializer finishes: `git branch -m master main` and update CI/badges accordingly.
 
 ---
 
 ## What you get
 
-- **Bun + TypeScript (ESM)** with strict settings
-- **Biome** for lint/format (Prettier-style formatting)
-- **Bun test** with `tests/setup.ts`
-- **GitHub Actions CI**: typecheck, lint, test
-- **mise** tool pinning (Bun/Node/gh)
-- Minimal starter code: `src/index.ts`, `tests/index.test.ts`
-- **Initializer**: `scripts/init.ts` personalizes package/repo/README and makes the first commit
-
-> Prefer Prettier over Biome? Swap `biome` scripts for `prettier` + `eslint` here. The template defaults to Biome for speed and fewer deps.
+- **Bun 1.x + strict TypeScript (ESM)** configured via `tsconfig.json`
+- **ESLint + Prettier** scripts (`bun run lint`, `bun run fix`) and Husky + lint-staged pre-commit hooks
+- **Bun test** with an example spec in `src/index.test.ts`
+- **Build & metadata tooling**: `bun run build` drives `zshy` using the repo’s `"zshy"` manifest key to emit dual CJS/ESM bundles, while CI separately runs `tshy` to regenerate `package.json` metadata and fail if it drifts
+- **Knip** for dead-code analysis (`bunx knip`)
+- **GitHub Actions CI** on PRs and `master`, including a `tshy` check that keeps `package.json` in sync
 
 ---
 
@@ -65,21 +69,23 @@ bun run init --name=my-new-service --org=charlie-labs
 ```
 .
 ├─ src/
-│  └─ index.ts
-├─ tests/
-│  ├─ setup.ts
+│  ├─ index.ts
 │  └─ index.test.ts
 ├─ scripts/
-│  └─ init.ts            # runs once in new repo; may remove itself
+│  └─ init.ts            # run once in new repos, then removes itself
 ├─ .github/workflows/
 │  └─ ci.yml
-├─ bunfig.toml
+├─ eslint.config.js
+├─ knip.ts
 ├─ tsconfig.json
-├─ mise.toml
+├─ bun.lock
+├─ .prettierignore
 ├─ package.json
-├─ README_TEMPLATE.md    # copied & token-replaced into new repo as README.md
-└─ README.md             # (this file) docs for *the template itself*
+├─ README_TEMPLATE.md    # source for downstream README.md
+└─ README.md             # (this file) docs for the template itself
 ```
+
+> This template tracks the human-readable `bun.lock` produced by `bun install --save-text-lock`. Regenerate it with `bun install` whenever dependencies change.
 
 ---
 
@@ -89,34 +95,33 @@ bun run init --name=my-new-service --org=charlie-labs
 
 - Validates and sets `package.json` fields: `name`, `repository`, `homepage`, `bugs`
 - Renders `README_TEMPLATE.md` → `README.md` (tokens: `__PROJECT_NAME__`, `__PKG_NAME__`, `__REPO_SLUG__`, `__VISIBILITY__`)
-- Removes template-only files (and can remove itself)
-- Runs `bun install`
-- Creates the first commit
+- Removes template-only helper files (including `scripts/init.ts`)
+- Runs `bun install` to refresh the lockfile
+- Creates the first commit (`chore: initialize from template`)
 
 Flags:
 
 ```bash
-bun run init --name=<projectName> --org=charlie-labs --visibility=private
+bun scripts/init.ts --name=<projectName> --org=charlie-labs --visibility=private
 ```
 
 ---
 
 ## CI
 
-`.github/workflows/ci.yml` runs on PRs + main:
+`.github/workflows/ci.yml` runs on PRs and pushes to `master`:
 
 - `bun install --frozen-lockfile`
-- `bun run typecheck`
-- `bun run lint`
-- `bun test --bail`
+- `bunx -y tshy` (fails if `package.json` would change)
+- `bun run ci` (typecheck ➝ lint ➝ test)
 
-Keep CI minimal. Project-specific jobs belong in downstream repos.
+Keep CI lean. Downstream services can add custom workflows as needed.
 
 ---
 
 ## Keeping downstream repos in sync (safe, curated)
 
-Templates don’t auto-propagate. If you want shared files (CI, tsconfig, mise, editorconfig, etc.) to stay fresh, add this **downstream** workflow:
+Templates don’t auto-propagate. If you want shared files (CI, lint config, tsconfig, etc.) to stay fresh, add this **downstream** workflow:
 
 ```yaml
 name: template-sync
@@ -140,10 +145,10 @@ jobs:
       - name: Copy curated files
         run: |
           rsync -av --delete __template__/.github/workflows/ci.yml .github/workflows/ci.yml
-          rsync -av __template__/mise.toml mise.toml
+          rsync -av __template__/eslint.config.js eslint.config.js
+          rsync -av __template__/knip.ts knip.ts
           rsync -av __template__/tsconfig.json tsconfig.json
-          rsync -av __template__/.editorconfig .editorconfig
-          rsync -av __template__/bunfig.toml bunfig.toml
+          rsync -av __template__/.prettierignore .prettierignore
 
       - name: Create PR
         uses: peter-evans/create-pull-request@v6
@@ -155,36 +160,6 @@ jobs:
           labels: maintenance
 ```
 
-> Be intentional. Don’t sync app code. Keep the allowlist small.
+> Be intentional. Don’t sync app code. Keep the allowlist tight and review every PR.
 
 ---
-
-## Conventions
-
-- **ESM only.** No CJS interop unless absolutely required.
-- **JSDoc-first TS** in examples/snippets; keep types tight.
-- **Small modules**; push side effects to entrypoints (`src/index.ts`).
-- Tests live near code (`tests/` mirroring `src/`).
-
----
-
-## Optional variations
-
-- **Library mode**: Add Changesets + release workflow; publish to npm.
-- **Service mode**: Add containerization, deploy workflows, env schema validation, health checks.
-
----
-
-## Maintenance (template repo)
-
-- Keep dependencies light and modern.
-- Any new “shared defaults” should be added here first, then synced downstream via PRs.
-- Avoid breaking changes in the template unless there’s a clear migration path.
-
----
-
-## Troubleshooting
-
-- `bun run init` fails: ensure `git` is initialized (the `gh repo create … && gh repo clone …` path handles this).
-- CI can’t find Bun: check `oven-sh/setup-bun@v1` and version input.
-- Formatter complaints: run `bun run format`, or switch to Prettier if that’s your team’s preference.
