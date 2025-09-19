@@ -118,4 +118,3 @@ bun scripts/init.ts --name=<projectName> --org=charlie-labs --visibility=private
 Keep CI lean. Downstream services can add custom workflows as needed.
 
 ---
-
