@@ -36,7 +36,7 @@ jobs:
           fi
 
           # Clean up build artifacts to avoid affecting subsequent lint steps
-          rm -rf dist .tshy .zshy
+          rm -rf dist .zshy
 
       - name: Run CI
         run: bun run ci
