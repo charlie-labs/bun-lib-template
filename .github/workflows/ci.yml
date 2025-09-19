@@ -22,6 +22,7 @@ jobs:
       - name: Verify package.json up-to-date (zshy)
         shell: bash
         run: |
+          set -euo pipefail
           # Regenerate package metadata based on current config using zshy
           # Use the project's build script so local + CI stay in sync
           bun run build
