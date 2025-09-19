@@ -14,7 +14,7 @@ A minimal, fast Bun + TypeScript project scaffold with consistent tooling:
 - Bun test runner
 - Husky + lint-staged pre-commit checks
 - GitHub Actions CI (typecheck, lint, test)
-- Build & metadata tooling: `bun run build` drives `zshy` (configured via the `"zshy"` key in package.json) to emit dual CJS/ESM bundles, while CI runs `tshy` to regenerate `package.json` metadata and catch drift
+- Build & metadata tooling: `bun run build` drives `zshy` (configured via the `"zshy"` key in package.json) to emit dual CJS/ESM bundles; CI also runs `bun run build` to regenerate `package.json` metadata and catch drift
 
 This repo was initialized from `charlie-labs/bun-lib-template`.
 
@@ -140,7 +140,7 @@ test('helloWorld', () => {
 - CI runs on PRs and the `master` branch.
 - Workflow: `.github/workflows/ci.yml`
   - `bun install --frozen-lockfile`
-  - `bunx -y tshy` to ensure `package.json` is current
+  - `bun run build` to ensure `package.json` is current (via zshy)
   - `bun run ci` (typecheck, lint, test)
 
 Badge at the top links to the current workflow run history.

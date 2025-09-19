@@ -12,9 +12,8 @@
  *   - Removes template-only files and self
  *   - Rebuilds bun.lockb and creates the first commit
  */
-import { readFile, writeFile, rm, rename, stat } from 'node:fs/promises';
 import { exec as _exec } from 'node:child_process';
-import { fileURLToPath } from 'node:url';
+import { readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 const exec = (cmd: string) =>
   new Promise<string>((res, rej) =>
@@ -23,8 +22,7 @@ const exec = (cmd: string) =>
     )
   );
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+// Current script path is available via `import.meta.url` if needed.
 
 /** Parse `--key=value` flags into a map. */
 function parseFlags(argv: string[]): Record<string, string> {
@@ -137,7 +135,9 @@ async function installAndCommit() {
   await cleanupTemplateOnly();
   await installAndCommit();
   log('Done.');
-})().catch((err) => {
-  console.error(err);
+})().catch((err: unknown) => {
+  const message =
+    err instanceof Error ? (err.stack ?? err.message) : String(err);
+  process.stderr.write(`${message}\n`);
   process.exit(1);
 });
