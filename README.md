@@ -58,9 +58,9 @@ bun scripts/init.ts --name=my-new-service --org=charlie-labs --visibility=privat
 - **Bun 1.x + strict TypeScript (ESM)** configured via `tsconfig.json`
 - **ESLint + Prettier** scripts (`bun run lint`, `bun run fix`) and Husky + lint-staged pre-commit hooks
 - **Bun test** with an example spec in `src/index.test.ts`
-- **Build & metadata tooling**: `bun run build` drives `zshy` using the repo’s `"zshy"` manifest key to emit dual CJS/ESM bundles, while CI separately runs `tshy` to regenerate `package.json` metadata and fail if it drifts
+- **Build & metadata tooling**: `bun run build` drives `zshy` (configured via the `"zshy"` key in `package.json`) to emit dual CJS/ESM bundles; CI also runs `bun run build` to regenerate `package.json` metadata and catch drift
 - **Knip** for dead-code analysis (`bunx knip`)
-- **GitHub Actions CI** on PRs and `master`, including a `tshy` check that keeps `package.json` in sync
+- **GitHub Actions CI** on PRs and `master`, including a `package.json` drift check based on `bun run build` (zshy)
 
 ---
 
@@ -112,7 +112,7 @@ bun scripts/init.ts --name=<projectName> --org=charlie-labs --visibility=private
 `.github/workflows/ci.yml` runs on PRs and pushes to `master`:
 
 - `bun install --frozen-lockfile`
-- `bunx -y tshy` (fails if `package.json` would change)
+- `bun run build` (ensures `package.json` is current via zshy; CI fails if it would change)
 - `bun run ci` (typecheck ➝ lint ➝ test)
 
 Keep CI lean. Downstream services can add custom workflows as needed.
