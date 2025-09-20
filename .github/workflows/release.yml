@@ -14,8 +14,6 @@ concurrency:
 
 jobs:
   publish:
-    # Never run this workflow in the template repository itself. It should only
-    # be active in repos created FROM this template.
     if: ${{ !github.event.repository.is_template && secrets.NPM_TOKEN != '' }}
     name: Publish to npm and create GitHub Release
     runs-on: ubuntu-latest
