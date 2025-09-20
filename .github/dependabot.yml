@@ -1,56 +1,6 @@
 version: 2
 updates:
-  # Keep GitHub Actions up to date
-  - package-ecosystem: github-actions
+  - package-ecosystem: bun
     directory: '/'
     schedule:
       interval: weekly
-      day: monday
-      time: '09:00'
-      timezone: America/Los_Angeles
-    open-pull-requests-limit: 10
-    commit-message:
-      prefix: 'deps(gha)'
-      include: 'scope'
-    groups:
-      actions:
-        patterns:
-          - '*'
-
-  # Keep npm dependencies (used by Bun) up to date
-  # Note: Dependabot can't update Bun's bun.lock directly. A companion workflow
-  # (dependabot-bun-lock.yml) updates bun.lock on Dependabot PRs.
-  - package-ecosystem: npm
-    directory: '/'
-    schedule:
-      interval: weekly
-      day: monday
-      time: '09:15'
-      timezone: America/Los_Angeles
-    open-pull-requests-limit: 10
-    versioning-strategy: increase
-    commit-message:
-      prefix: 'deps(npm)'
-      include: 'scope'
-    # Group related updates to reduce PR noise
-    groups:
-      eslint-and-friends:
-        patterns:
-          - 'eslint'
-          - 'eslint-*'
-          - '@typescript-eslint/*'
-          - 'prettier'
-          - '@charlie-labs/config'
-      typescript-and-types:
-        patterns:
-          - 'typescript'
-          - '@types/*'
-      tooling:
-        patterns:
-          - 'husky'
-          - 'lint-staged'
-          - 'np'
-          - 'zshy'
-      analysis:
-        patterns:
-          - 'knip'
