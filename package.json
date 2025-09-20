@@ -13,7 +13,7 @@
     "fix": "eslint --fix --quiet . ; prettier --write --log-level=silent .",
     "lint": "eslint . && prettier --check .",
     "prepare": "husky",
-    "prepublishOnly": "bun run build",
+    "prepack": "bun run build",
     "test": "bun test",
     "typecheck": "tsc --noEmit"
   },
@@ -27,9 +27,6 @@
     ]
   },
   "prettier": "@charlie-labs/config/prettier",
-  "np": {
-    "testScript": "ci"
-  },
   "publishConfig": {
     "access": "public"
   },
@@ -41,7 +38,6 @@
     "husky": "^9.1.7",
     "knip": "^5.63.1",
     "lint-staged": "^16.1.6",
-    "np": "^10.2.0",
     "prettier": "^3.6.2",
     "typescript": "^5.9.2",
     "zshy": "^0.4.2"
