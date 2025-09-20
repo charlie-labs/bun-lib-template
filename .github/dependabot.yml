@@ -1,0 +1,42 @@
+version: 2
+
+updates:
+  # Keep Bun-managed dependencies up to date using the text-based bun.lock
+  - package-ecosystem: 'bun'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:00'
+      timezone: 'America/Los_Angeles'
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: 'deps'
+      prefix-development: 'dev-deps'
+    labels:
+      - 'dependencies'
+    # Group routine devDependency bumps to reduce PR noise
+    groups:
+      dev-deps-minor-patch:
+        dependency-type: 'development'
+        update-types:
+          - 'minor'
+          - 'patch'
+      # Group routine production (non-dev) dependency bumps as well
+      prod-deps-minor-patch:
+        dependency-type: 'production'
+        update-types:
+          - 'minor'
+          - 'patch'
+
+  # Keep GitHub Actions pinned to the latest versions
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:00'
+      timezone: 'America/Los_Angeles'
+    open-pull-requests-limit: 10
+    labels:
+      - 'dependencies'
