@@ -1,0 +1,72 @@
+name: Release (autopublish + GH Release)
+
+on:
+  push:
+    branches: [master]
+
+permissions:
+  contents: write # needed to create Git tags/Releases
+  id-token: write # needed for npm provenance (npm >= 9.5)
+
+concurrency:
+  group: release-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish to npm and create GitHub Release
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout
+        # Pin to the commit SHA behind actions/checkout@v4
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955
+        with:
+          persist-credentials: false
+
+      - name: Setup Bun
+        # Pin to the commit SHA behind oven-sh/setup-bun@v2
+        uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76
+        with:
+          bun-version: '1.2.21'
+
+      - name: Setup Node.js (for npm)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: TypeScript typecheck
+        run: bun run typecheck
+
+      - name: ESLint
+        run: bun run lint
+
+      - name: Tests
+        run: bun run test
+
+      - name: Build (if present)
+        # Run build if the repo defines one; do nothing otherwise
+        run: npm run build --if-present
+
+      - name: Publish (npm)
+        id: publish
+        # Pin to the commit SHA for JS-DevTools/npm-publish@v4
+        uses: JS-DevTools/npm-publish@d9dc932de083f0e6de6a50f0d1097a7142c3751b
+        with:
+          token: ${{ secrets.NPM_TOKEN }}
+          provenance: true
+          # By default, this action runs with --ignore-scripts. We run checks above explicitly.
+
+      - name: Create GitHub Release
+        # Only create a GitHub Release when a new version was actually published
+        # Compatible across action versions: v1/v2 used 'none'; v3+ use empty string when no publish
+        if: ${{ steps.publish.outputs.type != '' && steps.publish.outputs.type != 'none' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "v${{ steps.publish.outputs.version }}" \
+            --title "v${{ steps.publish.outputs.version }}" \
+            --generate-notes
