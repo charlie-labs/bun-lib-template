@@ -121,7 +121,11 @@ Keep CI lean. Downstream services can add custom workflows as needed.
 
 ## Releasing & publishing
 
-This repo is set up to auto-publish to npm on merge to the default branch (currently `master`) via GitHub Actions. You only need to bump the version and merge a PR.
+This template includes an auto‑publish workflow, but it is **disabled in the template repository itself**. The workflow becomes active in repositories created from this template.
+
+Why: we gate the workflow with `if: ${{ !github.event.repository.is_template && secrets.NPM_TOKEN != '' }}` at the job level in `.github/workflows/release.yml` so the template never attempts to publish.
+
+In downstream repos, it will auto‑publish to npm on merge to the default branch (currently `master`). You only need to bump the version and merge a PR.
 
 1. Create a branch and bump the version in `package.json` without creating a git tag:
 
