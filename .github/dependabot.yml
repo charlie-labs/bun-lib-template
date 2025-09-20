@@ -22,6 +22,12 @@ updates:
         update-types:
           - 'minor'
           - 'patch'
+      # Group routine production (non-dev) dependency bumps as well
+      prod-deps-minor-patch:
+        dependency-type: 'production'
+        update-types:
+          - 'minor'
+          - 'patch'
 
   # Keep GitHub Actions pinned to the latest versions
   - package-ecosystem: 'github-actions'
