@@ -11,16 +11,18 @@ Use this repo as a GitHub Template, then run the initializer to personalize pack
 Using GitHub’s Template feature:
 
 ```bash
+export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
+
 # 1) Create the repo on GitHub from the template
-gh repo create charlie-labs/my-new-service \
+gh repo create "${ORG:-charlie-labs}/my-new-service" \
   --private \
   --template charlie-labs/bun-lib-template \
   --description "My new Bun library"
 
 # 2) Clone & initialize
-gh repo clone charlie-labs/my-new-service
+gh repo clone "${ORG:-charlie-labs}/my-new-service"
 cd my-new-service
-bun scripts/init.ts --name=my-new-service --org=charlie-labs --visibility=private
+bun scripts/init.ts --name=my-new-service --org="${ORG:-charlie-labs}" --visibility=private
 
 # 3) Verify
 bun install
@@ -32,7 +34,8 @@ bun test
 One-liner convenience (optional):
 
 ```bash
-gh alias set -s newbun 'gh repo create charlie-labs/$1 --private --template charlie-labs/bun-lib-template && gh repo clone charlie-labs/$1 && cd $1 && bun scripts/init.ts --name=$1 --org=charlie-labs --visibility=private'
+export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
+gh alias set -s newbun 'gh repo create "${ORG:-charlie-labs}/$1" --private --template charlie-labs/bun-lib-template && gh repo clone "${ORG:-charlie-labs}/$1" && cd "$1" && bun scripts/init.ts --name="$1" --org="${ORG:-charlie-labs}" --visibility=private'
 # usage: gh newbun my-new-service
 ```
 
@@ -42,7 +45,8 @@ Local-only bootstrap (no GitHub yet):
 bunx giget gh:charlie-labs/bun-lib-template my-new-service
 cd my-new-service
 git init -b master
-bun scripts/init.ts --name=my-new-service --org=charlie-labs --visibility=private
+export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
+bun scripts/init.ts --name=my-new-service --org="${ORG:-charlie-labs}" --visibility=private
 ```
 
 > The initializer rewrites `package.json`, materializes a project-specific `README.md`, removes template-only files (including itself), runs `bun install`, and makes the first commit.
@@ -101,7 +105,10 @@ This template tracks the human-readable `bun.lock` produced by `bun install --sa
 Flags:
 
 ```bash
-bun scripts/init.ts --name=<projectName> --org=charlie-labs --visibility=private
+# Example
+export PROJECT=my-new-service
+export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
+bun scripts/init.ts --name="$PROJECT" --org="${ORG:-charlie-labs}" --visibility=private
 ```
 
 </details>
