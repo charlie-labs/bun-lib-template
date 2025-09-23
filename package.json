@@ -5,6 +5,14 @@
   "license": "UNLICENSED",
   "private": true,
   "sideEffects": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/charlie-labs/bun-lib-template.git"
+  },
+  "homepage": "https://github.com/charlie-labs/bun-lib-template",
+  "bugs": {
+    "url": "https://github.com/charlie-labs/bun-lib-template/issues"
+  },
   "zshy": "./src/index.ts",
   "scripts": {
     "build": "bun run --bun zshy",
