@@ -5,7 +5,7 @@
  * Usage:
  *   # Example (ORG optional; defaults to "charlie-labs"):
  *   #   export ORG=your-org-or-username
- *   bun scripts/init.ts --name=my-new-service --org=${ORG:-charlie-labs} --visibility=private
+ *   bun scripts/init.ts --name=my-new-service --org="${ORG:-charlie-labs}" --visibility=private
  *
  * What it does:
  *   - Validates/normalizes the package name and repo URLs

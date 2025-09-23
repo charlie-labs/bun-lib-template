@@ -2,15 +2,13 @@
 
 Opinionated Bun + TypeScript library starter for Charlie Labs.
 
-> Use **GitHub’s Template Repository** flow to clone this repo, then run the initializer script to personalize package metadata, README content, and git history.
+Use this repo as a GitHub Template, then run the initializer to personalize package metadata, README, and git history.
 
-> **Default branch:** The template (and repos created from it) start on `master`. Rename it to `main` if you prefer that convention.
+> Default branch: new repos from this template start on `master`. Rename to `main` after init if you prefer.
 
----
+## How to use this template
 
-## Quick start (new repo from this template)
-
-Using GitHub’s template feature:
+Using GitHub’s Template feature:
 
 ```bash
 export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
@@ -53,22 +51,22 @@ bun scripts/init.ts --name=my-new-service --org="${ORG:-charlie-labs}" --visibil
 
 > The initializer rewrites `package.json`, materializes a project-specific `README.md`, removes template-only files (including itself), runs `bun install`, and makes the first commit.
 
-> Prefer `main` as your default branch? Rename it after the initializer finishes: `git branch -m master main` and update CI/badges accordingly.
+> Prefer `main`? Rename after init: `git branch -m master main` and update CI/badges.
 
----
+<details>
+<summary><strong>What you get</strong></summary>
 
-## What you get
+- Bun 1.x + strict TypeScript (ESM)
+- ESLint + Prettier scripts (`bun run lint`, `bun run fix`) and Husky + lint-staged pre-commit hooks
+- Bun test with an example spec in `src/index.test.ts`
+- Build & metadata tooling: `bun run build` drives `zshy` (configured via the `"zshy"` key in `package.json`) to emit dual CJS/ESM bundles; CI also runs `bun run build` to regenerate `package.json` metadata and catch drift
+- Knip for dead-code analysis (`bunx knip`)
+- GitHub Actions CI on PRs and `master`, including a `package.json` drift check based on `bun run build` (zshy)
 
-- **Bun 1.x + strict TypeScript (ESM)** configured via `tsconfig.json`
-- **ESLint + Prettier** scripts (`bun run lint`, `bun run fix`) and Husky + lint-staged pre-commit hooks
-- **Bun test** with an example spec in `src/index.test.ts`
-- **Build & metadata tooling**: `bun run build` drives `zshy` (configured via the `"zshy"` key in `package.json`) to emit dual CJS/ESM bundles; CI also runs `bun run build` to regenerate `package.json` metadata and catch drift
-- **Knip** for dead-code analysis (`bunx knip`)
-- **GitHub Actions CI** on PRs and `master`, including a `package.json` drift check based on `bun run build` (zshy)
+</details>
 
----
-
-## Template files (high level)
+<details>
+<summary><strong>Template files (high level)</strong></summary>
 
 ```
 .
@@ -89,11 +87,12 @@ bun scripts/init.ts --name=my-new-service --org="${ORG:-charlie-labs}" --visibil
 └─ README.md             # (this file) docs for the template itself
 ```
 
-> This template tracks the human-readable `bun.lock` produced by `bun install --save-text-lock`. Regenerate it with `bun install` whenever dependencies change.
+This template tracks the human-readable `bun.lock` produced by `bun install --save-text-lock`. Regenerate it with `bun install` whenever dependencies change.
 
----
+</details>
 
-## Initialize step (what it actually does)
+<details>
+<summary><strong>How the initializer works</strong></summary>
 
 `scripts/init.ts`:
 
@@ -112,9 +111,10 @@ export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
 bun scripts/init.ts --name="$PROJECT" --org="${ORG:-charlie-labs}" --visibility=private
 ```
 
----
+</details>
 
-## CI
+<details>
+<summary><strong>CI</strong></summary>
 
 `.github/workflows/ci.yml` runs on PRs and pushes to `master`:
 
@@ -124,13 +124,12 @@ bun scripts/init.ts --name="$PROJECT" --org="${ORG:-charlie-labs}" --visibility=
 
 Keep CI lean. Downstream services can add custom workflows as needed.
 
----
+</details>
 
-## Releasing & publishing
+<details>
+<summary><strong>Releasing & publishing</strong></summary>
 
-This template includes an auto‑publish workflow, but it is **disabled in the template repository itself**. The workflow becomes active in repositories created from this template.
-
-Why: we gate the workflow with `if: ${{ !github.event.repository.is_template && secrets.NPM_TOKEN != '' }}` at the job level in `.github/workflows/release.yml` so the template never attempts to publish.
+This template includes an auto‑publish workflow, but it is disabled in the template repository itself (guarded by `if: ${{ !github.event.repository.is_template && secrets.NPM_TOKEN != '' }}` in `.github/workflows/release.yml`). The workflow becomes active in repositories created from this template.
 
 In downstream repos, it will auto‑publish to npm on merge to the default branch (currently `master`). You only need to bump the version and merge a PR.
 
@@ -142,7 +141,7 @@ In downstream repos, it will auto‑publish to npm on merge to the default branc
    # or: npm version 0.0.13 --no-git-tag-version
    ```
 
-2. Commit the change and open a PR. Keep the PR limited to the version bump and any release notes you want in the description.
+2. Commit the change and open a PR.
 
 3. When the PR is merged to the default branch, the workflow at `.github/workflows/release.yml` will:
    - run typecheck and ESLint
@@ -160,11 +159,7 @@ Notes:
 To publish to npm from GitHub Actions, add an npm access token as a secret named `NPM_TOKEN`:
 
 1. Create an npm access token with at least “Publish” permission in your npm account settings.
-2. In this repository’s Settings → Secrets and variables → Actions, add a new Repository secret named `NPM_TOKEN` with that token’s value. An Organization secret works too.
-3. Nothing else is required—our release workflow already:
-   - requests `id-token: write` for npm provenance support, and
-   - uses `actions/setup-node@v4` to provide a recent npm version during publish.
+2. In the repository’s Settings → Secrets and variables → Actions, add a Repository secret named `NPM_TOKEN` with that token’s value (an Organization secret also works).
+3. Nothing else is required—the workflow already requests `id-token: write` and uses `actions/setup-node@v4` with `provenance: true`.
 
-If your org enforces “Require provenance” on npm, the existing `provenance: true` input on the publish step satisfies it.
-
----
+</details>
