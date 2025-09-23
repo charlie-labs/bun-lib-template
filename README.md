@@ -13,16 +13,18 @@ Opinionated Bun + TypeScript library starter for Charlie Labs.
 Using GitHub’s template feature:
 
 ```bash
+export ORG=your-org-or-username
+
 # 1) Create the repo on GitHub from the template
-gh repo create charlie-labs/my-new-service \
+gh repo create "$ORG/my-new-service" \
   --private \
   --template charlie-labs/bun-lib-template \
   --description "My new Bun library"
 
 # 2) Clone & initialize
-gh repo clone charlie-labs/my-new-service
+gh repo clone "$ORG/my-new-service"
 cd my-new-service
-bun scripts/init.ts --name=my-new-service --org=charlie-labs --visibility=private
+bun scripts/init.ts --name=my-new-service --org="$ORG" --visibility=private
 
 # 3) Verify
 bun install
@@ -34,7 +36,8 @@ bun test
 One-liner convenience (optional):
 
 ```bash
-gh alias set -s newbun 'gh repo create charlie-labs/$1 --private --template charlie-labs/bun-lib-template && gh repo clone charlie-labs/$1 && cd $1 && bun scripts/init.ts --name=$1 --org=charlie-labs --visibility=private'
+export ORG=your-org-or-username
+gh alias set -s newbun 'gh repo create "$ORG/$1" --private --template charlie-labs/bun-lib-template && gh repo clone "$ORG/$1" && cd "$1" && bun scripts/init.ts --name="$1" --org="$ORG" --visibility=private'
 # usage: gh newbun my-new-service
 ```
 
@@ -44,7 +47,8 @@ Local-only bootstrap (no GitHub yet):
 bunx giget gh:charlie-labs/bun-lib-template my-new-service
 cd my-new-service
 git init -b master
-bun scripts/init.ts --name=my-new-service --org=charlie-labs --visibility=private
+export ORG=your-org-or-username
+bun scripts/init.ts --name=my-new-service --org="$ORG" --visibility=private
 ```
 
 > The initializer rewrites `package.json`, materializes a project-specific `README.md`, removes template-only files (including itself), runs `bun install`, and makes the first commit.
@@ -102,7 +106,10 @@ bun scripts/init.ts --name=my-new-service --org=charlie-labs --visibility=privat
 Flags:
 
 ```bash
-bun scripts/init.ts --name=<projectName> --org=charlie-labs --visibility=private
+# Example
+export ORG=your-org-or-username
+export PROJECT=my-new-service
+bun scripts/init.ts --name="$PROJECT" --org="$ORG" --visibility=private
 ```
 
 ---

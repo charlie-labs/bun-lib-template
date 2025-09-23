@@ -3,7 +3,9 @@
  * Project initializer for template clones.
  *
  * Usage:
- *   bun run scripts/init.ts --name=my-new-service --org=charlie-labs --visibility=private
+ *   # Example (set ORG once):
+ *   #   export ORG=your-org-or-username
+ *   bun scripts/init.ts --name=my-new-service --org=$ORG --visibility=private
  *
  * What it does:
  *   - Validates/normalizes the package name and repo URLs
