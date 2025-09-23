@@ -3,9 +3,9 @@
  * Project initializer for template clones.
  *
  * Usage:
- *   # Example (set ORG once):
+ *   # Example (ORG optional; defaults to "charlie-labs"):
  *   #   export ORG=your-org-or-username
- *   bun scripts/init.ts --name=my-new-service --org=$ORG --visibility=private
+ *   bun scripts/init.ts --name=my-new-service --org=${ORG:-charlie-labs} --visibility=private
  *
  * What it does:
  *   - Validates/normalizes the package name and repo URLs
@@ -44,7 +44,10 @@ function sanitizePkgName(name: string): string {
 
 const flags = parseFlags(process.argv.slice(2));
 const projectName = flags['name'] ?? dirname(process.cwd());
-const org = flags['org'] ?? 'charlie-labs';
+// Treat empty/whitespace --org as missing so shell expansions like --org=$ORG (unset) still get the default.
+const orgFlagRaw = flags['org'];
+const orgInput = typeof orgFlagRaw === 'string' ? orgFlagRaw.trim() : undefined;
+const org = orgInput && orgInput !== '' ? orgInput : 'charlie-labs';
 const visibility = flags['visibility'] ?? 'private';
 
 const pkgName = sanitizePkgName(projectName);

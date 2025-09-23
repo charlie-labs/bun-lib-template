@@ -13,18 +13,18 @@ Opinionated Bun + TypeScript library starter for Charlie Labs.
 Using GitHub’s template feature:
 
 ```bash
-export ORG=your-org-or-username
+export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
 
 # 1) Create the repo on GitHub from the template
-gh repo create "$ORG/my-new-service" \
+gh repo create "${ORG:-charlie-labs}/my-new-service" \
   --private \
   --template charlie-labs/bun-lib-template \
   --description "My new Bun library"
 
 # 2) Clone & initialize
-gh repo clone "$ORG/my-new-service"
+gh repo clone "${ORG:-charlie-labs}/my-new-service"
 cd my-new-service
-bun scripts/init.ts --name=my-new-service --org="$ORG" --visibility=private
+bun scripts/init.ts --name=my-new-service --org="${ORG:-charlie-labs}" --visibility=private
 
 # 3) Verify
 bun install
@@ -36,8 +36,8 @@ bun test
 One-liner convenience (optional):
 
 ```bash
-export ORG=your-org-or-username
-gh alias set -s newbun 'gh repo create "$ORG/$1" --private --template charlie-labs/bun-lib-template && gh repo clone "$ORG/$1" && cd "$1" && bun scripts/init.ts --name="$1" --org="$ORG" --visibility=private'
+export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
+gh alias set -s newbun 'gh repo create "${ORG:-charlie-labs}/$1" --private --template charlie-labs/bun-lib-template && gh repo clone "${ORG:-charlie-labs}/$1" && cd "$1" && bun scripts/init.ts --name="$1" --org="${ORG:-charlie-labs}" --visibility=private'
 # usage: gh newbun my-new-service
 ```
 
@@ -47,8 +47,8 @@ Local-only bootstrap (no GitHub yet):
 bunx giget gh:charlie-labs/bun-lib-template my-new-service
 cd my-new-service
 git init -b master
-export ORG=your-org-or-username
-bun scripts/init.ts --name=my-new-service --org="$ORG" --visibility=private
+export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
+bun scripts/init.ts --name=my-new-service --org="${ORG:-charlie-labs}" --visibility=private
 ```
 
 > The initializer rewrites `package.json`, materializes a project-specific `README.md`, removes template-only files (including itself), runs `bun install`, and makes the first commit.
@@ -107,9 +107,9 @@ Flags:
 
 ```bash
 # Example
-export ORG=your-org-or-username
 export PROJECT=my-new-service
-bun scripts/init.ts --name="$PROJECT" --org="$ORG" --visibility=private
+export ORG=your-org-or-username  # optional; defaults to "charlie-labs" if unset
+bun scripts/init.ts --name="$PROJECT" --org="${ORG:-charlie-labs}" --visibility=private
 ```
 
 ---
