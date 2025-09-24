@@ -14,7 +14,7 @@ concurrency:
 
 jobs:
   publish:
-    if: ${{ !github.event.repository.is_template && secrets.NPM_TOKEN != '' }}
+    if: ${{ !github.event.repository.is_template }}
     name: Publish to npm and create GitHub Release
     runs-on: ubuntu-latest
     timeout-minutes: 15
